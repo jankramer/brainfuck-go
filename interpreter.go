@@ -17,6 +17,9 @@ func Run(program []byte) []byte {
 		case '+':
 			tape[tapePointer]++
 			programPointer++
+		case '-':
+			tape[tapePointer]--
+			programPointer++
 		case '>':
 			tapePointer++
 			programPointer++

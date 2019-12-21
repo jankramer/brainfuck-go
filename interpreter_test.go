@@ -17,6 +17,12 @@ var runTests = []struct {
 	},
 
 	{
+		"adds and subtracts",
+		[]byte("+-++-+++-."),
+		[]byte{3},
+	},
+
+	{
 		"skips unknown instructions",
 		[]byte("++++ foobar ."),
 		[]byte{4},
