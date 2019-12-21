@@ -20,6 +20,8 @@ func Run(program []byte) []byte {
 		case '.':
 			buf.WriteByte(tape[tapePointer])
 			programPointer++
+		default:
+			programPointer++
 		}
 
 	}

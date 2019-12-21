@@ -15,6 +15,12 @@ var runTests = []struct {
 		[]byte("+++."),
 		[]byte{3},
 	},
+
+	{
+		"skips unknown instructions",
+		[]byte("++++ foobar ."),
+		[]byte{4},
+	},
 }
 
 func TestRun(t *testing.T) {
