@@ -21,6 +21,18 @@ var runTests = []struct {
 		[]byte("++++ foobar ."),
 		[]byte{4},
 	},
+
+	{
+		"output multiple bytes by moving pointer forward",
+		[]byte("+.>++.>+++."),
+		[]byte{1, 2, 3},
+	},
+
+	{
+		"moves pointer back and forth",
+		[]byte("+>++>+++.<.<."),
+		[]byte{3, 2, 1},
+	},
 }
 
 func TestRun(t *testing.T) {
