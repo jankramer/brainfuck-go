@@ -16,23 +16,17 @@ func Run(program []byte) []byte {
 		switch program[programPointer] {
 		case '+':
 			tape[tapePointer]++
-			programPointer++
 		case '-':
 			tape[tapePointer]--
-			programPointer++
 		case '>':
 			tapePointer++
-			programPointer++
 		case '<':
 			tapePointer--
-			programPointer++
 		case '.':
 			buf.WriteByte(tape[tapePointer])
-			programPointer++
-		default:
-			programPointer++
 		}
 
+		programPointer++
 	}
 
 	return buf.Bytes()
