@@ -4,7 +4,7 @@ import "bytes"
 
 // Run executes a brainfuck program and returns its output.
 func Run(program []byte) []byte {
-	buf := new(bytes.Buffer)
+	output := new(bytes.Buffer)
 	tape := make(map[int]byte)
 
 	end := len(program)
@@ -23,11 +23,11 @@ func Run(program []byte) []byte {
 		case '<':
 			tapePointer--
 		case '.':
-			buf.WriteByte(tape[tapePointer])
+			output.WriteByte(tape[tapePointer])
 		}
 
 		programPointer++
 	}
 
-	return buf.Bytes()
+	return output.Bytes()
 }
