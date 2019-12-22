@@ -24,5 +24,11 @@ func main() {
 		log.Fatalln("Failed to read program:", err)
 	}
 
-	fmt.Println(Run(program))
+	output, err := Run(program)
+
+	if err != nil {
+		log.Fatalln("Failed to run program:", err)
+	}
+
+	fmt.Println(string(output))
 }
