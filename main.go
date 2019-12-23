@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -17,18 +16,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Println("Reading from", *path)
-
 	program, err := ioutil.ReadFile(*path)
 	if err != nil {
 		log.Fatalln("Failed to read program:", err)
 	}
 
-	output, err := Run(program)
-
-	if err != nil {
+	if err := Run(program, os.Stdin, os.Stdout); err != nil {
 		log.Fatalln("Failed to run program:", err)
 	}
-
-	fmt.Println(string(output))
 }

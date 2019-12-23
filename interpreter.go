@@ -1,13 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
+	"io"
 )
 
-// Run executes a brainfuck program and returns its output.
-func Run(program []byte) ([]byte, error) {
-	output := new(bytes.Buffer)
+// Run executes a given brainfuck program.
+func Run(program []byte, input io.Reader, output io.Writer) error {
 	tape := make(map[int]byte)
 
 	end := len(program)
@@ -16,7 +15,7 @@ func Run(program []byte) ([]byte, error) {
 
 	loopMarkers, err := scanLoops(program)
 	if err != nil {
-		return nil, fmt.Errorf("unable to run program: %w", err)
+		return fmt.Errorf("unable to run program: %w", err)
 	}
 
 	loops := NewStack()
@@ -33,7 +32,22 @@ func Run(program []byte) ([]byte, error) {
 		case '<':
 			tapePointer--
 		case '.':
-			output.WriteByte(tape[tapePointer])
+			if _, err := output.Write([]byte{tape[tapePointer]}); err != nil {
+				return err
+			}
+		case ',':
+			buf := make([]byte, 1)
+			_, err := input.Read(buf)
+
+			switch err {
+			case nil:
+				tape[tapePointer] = buf[0]
+			case io.EOF:
+				tape[tapePointer] = 0
+			default:
+				return fmt.Errorf("unable to read from input: %w", err)
+			}
+
 		case '[':
 			if tape[tapePointer] == 0 {
 				programPointer = loopMarkers[programPointer]
@@ -48,7 +62,7 @@ func Run(program []byte) ([]byte, error) {
 		programPointer++
 	}
 
-	return output.Bytes(), nil
+	return nil
 }
 
 // scanLoops creates a dictionary which maps start positions of loops to their respective end positions
