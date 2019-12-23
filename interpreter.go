@@ -7,32 +7,29 @@ import (
 
 // Run executes a given brainfuck program.
 func Run(program []byte, input io.Reader, output io.Writer) error {
-	tape := make(map[int]byte)
+	memory := make(map[int]byte)
+	var pInstr, pMemory int
 
-	end := len(program)
-	programPointer := 0
-	tapePointer := 0
-
-	loopMarkers, err := scanLoops(program)
+	loopPositions, err := scanLoops(program)
 	if err != nil {
 		return fmt.Errorf("unable to run program: %w", err)
 	}
 
 	loops := NewStack()
 
-	for programPointer < end {
+	for pInstr < len(program) {
 
-		switch program[programPointer] {
+		switch program[pInstr] {
 		case '+':
-			tape[tapePointer]++
+			memory[pMemory]++
 		case '-':
-			tape[tapePointer]--
+			memory[pMemory]--
 		case '>':
-			tapePointer++
+			pMemory++
 		case '<':
-			tapePointer--
+			pMemory--
 		case '.':
-			if _, err := output.Write([]byte{tape[tapePointer]}); err != nil {
+			if _, err := output.Write([]byte{memory[pMemory]}); err != nil {
 				return err
 			}
 		case ',':
@@ -41,25 +38,25 @@ func Run(program []byte, input io.Reader, output io.Writer) error {
 
 			switch err {
 			case nil:
-				tape[tapePointer] = buf[0]
+				memory[pMemory] = buf[0]
 			case io.EOF:
-				tape[tapePointer] = 0
+				memory[pMemory] = 0
 			default:
 				return fmt.Errorf("unable to read from input: %w", err)
 			}
 
 		case '[':
-			if tape[tapePointer] == 0 {
-				programPointer = loopMarkers[programPointer]
+			if memory[pMemory] == 0 {
+				pInstr = loopPositions[pInstr]
 			} else {
-				loops.Push(programPointer)
+				loops.Push(pInstr)
 			}
 		case ']':
-			programPointer, _ = loops.Pop()
+			pInstr, _ = loops.Pop()
 			continue
 		}
 
-		programPointer++
+		pInstr++
 	}
 
 	return nil
@@ -67,11 +64,11 @@ func Run(program []byte, input io.Reader, output io.Writer) error {
 
 // scanLoops creates a dictionary which maps start positions of loops to their respective end positions
 func scanLoops(program []byte) (map[int]int, error) {
-	loopMarkers := make(map[int]int)
+	loopPositions := make(map[int]int)
 
 	s := NewStack()
-	for i, v := range program {
-		switch v {
+	for i, instr := range program {
+		switch instr {
 		case '[':
 			s.Push(i)
 		case ']':
@@ -80,7 +77,7 @@ func scanLoops(program []byte) (map[int]int, error) {
 				return nil, fmt.Errorf("unbalanced loop end at index %d", i)
 			}
 
-			loopMarkers[start] = i
+			loopPositions[start] = i
 		}
 	}
 
@@ -90,5 +87,5 @@ func scanLoops(program []byte) (map[int]int, error) {
 		return nil, fmt.Errorf("unbalanced loop start at index %d", start)
 	}
 
-	return loopMarkers, nil
+	return loopPositions, nil
 }
