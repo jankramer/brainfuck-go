@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"reflect"
 	"testing"
@@ -99,34 +100,41 @@ var scanLoopTests = []struct {
 	descr string
 	in    []byte
 	out   map[int]int
-	err   bool
+	err   error
 }{
 	{
 		"simple loop",
 		[]byte("[]"),
 		map[int]int{0: 1},
-		false,
+		nil,
 	},
 
 	{
 		"1 nested loop",
 		[]byte("[[]]"),
 		map[int]int{0: 3, 1: 2},
-		false,
+		nil,
 	},
 
 	{
 		"multiple nested loops",
 		[]byte("[[234[6]8[0]2]4]"),
 		map[int]int{0: 15, 1: 13, 5: 7, 9: 11},
-		false,
+		nil,
 	},
 
 	{
-		"unbalanced loop",
+		"unbalanced loop start",
 		[]byte("[[]"),
 		nil,
-		true,
+		errors.New("unbalanced loop start at index 0"),
+	},
+
+	{
+		"unbalanced loop end",
+		[]byte("[]]"),
+		nil,
+		errors.New("unbalanced loop end at index 2"),
 	},
 }
 
@@ -140,8 +148,8 @@ func TestScanLoops(t *testing.T) {
 				t.Errorf("got %v, want %v", loops, test.out)
 			}
 
-			if test.err && err == nil {
-				t.Errorf("got nil, want error")
+			if !reflect.DeepEqual(err, test.err) {
+				t.Errorf("got '%v', want '%v'", err, test.err)
 			}
 		})
 	}
