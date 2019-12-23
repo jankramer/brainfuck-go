@@ -16,7 +16,7 @@ var runTests = []struct {
 	{
 		"output single byte",
 		[]byte("+++."),
-		bytes.NewBuffer([]byte{}),
+		new(bytes.Buffer),
 		[]byte{3},
 	},
 
@@ -30,49 +30,48 @@ var runTests = []struct {
 	{
 		"handles input error",
 		[]byte(","),
-		bytes.NewBuffer([]byte{}),
+		new(bytes.Buffer),
 		nil,
 	},
 
 	{
 		"adds and subtracts",
 		[]byte("+-++-+++-."),
-		bytes.NewBuffer([]byte{}),
+		new(bytes.Buffer),
 		[]byte{3},
 	},
 
 	{
 		"skips unknown instructions",
 		[]byte("++++ foobar ."),
-		bytes.NewBuffer([]byte{}),
+		new(bytes.Buffer),
 		[]byte{4},
 	},
 
 	{
 		"output multiple bytes by moving pointer forward",
 		[]byte("+.>++.>+++."),
-		bytes.NewBuffer([]byte{}),
+		new(bytes.Buffer),
 		[]byte{1, 2, 3},
 	},
 
 	{
 		"moves pointer back and forth",
 		[]byte("+>++>+++.<.<."),
-		bytes.NewBuffer([]byte{}),
+		new(bytes.Buffer),
 		[]byte{3, 2, 1},
 	},
 
 	{
 		"handles simple loops",
 		[]byte("+++++[>>+<<-]>>."),
-		bytes.NewBuffer([]byte{}),
+		new(bytes.Buffer),
 		[]byte{5},
 	},
-
 	{
 		"hello world",
 		[]byte("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."),
-		bytes.NewBuffer([]byte{}),
+		new(bytes.Buffer),
 		[]byte("Hello World!\n"),
 	},
 }
@@ -81,7 +80,7 @@ func TestRun(t *testing.T) {
 	for _, test := range runTests {
 		t.Run(test.descr, func(t *testing.T) {
 
-			output := bytes.NewBuffer([]byte{})
+			output := new(bytes.Buffer)
 			Run(test.program, test.input, output)
 
 			got := output.Bytes()
