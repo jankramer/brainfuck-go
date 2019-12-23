@@ -81,7 +81,11 @@ func TestRun(t *testing.T) {
 		t.Run(test.descr, func(t *testing.T) {
 
 			output := new(bytes.Buffer)
-			Run(test.program, test.input, output)
+			err := Run(test.program, test.input, output)
+
+			if err != nil {
+				t.Fatalf("unexpected error: %s", err)
+			}
 
 			got := output.Bytes()
 			if bytes.Compare(got, test.out) != 0 {
